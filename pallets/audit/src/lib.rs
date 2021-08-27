@@ -151,7 +151,7 @@ decl_module! {
         #[weight = 10_000]
         pub fn create_new_file(origin, tag: Vec<u8>, filehash: u64) {
             let caller = ensure_signed(origin)?;
-            
+
             let empty_vec: Vec<SigStruct<AccountId>> = Vec::new();
             let latest_version = VersionStruct {
                 tag,
@@ -173,6 +173,10 @@ decl_module! {
             <FileByID<T>>::insert(new_id, new_file);
             LastID::mutate(|x| *x += 1);
 
+        }
+
+        #[weight = 10_000]
+        pub fn create_new_file_1(origin, tag: Vec<u8>, filehash: u64) {
         }
 
         #[weight = 10_000]
