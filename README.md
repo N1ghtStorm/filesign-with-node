@@ -10,6 +10,8 @@ Filesign is a substrate pallet which allows to create and store files with diffe
 
 Add the pallet to the [Substrate node template](https://github.com/substrate-developer-hub/substrate-node-template) pallets folder. 
 
+(git clone -b v3.0.0+monthly-2021-07 --depth 1 https://github.com/substrate-developer-hub/substrate-node-template)
+
 Add the following snippets of code to the runtime/lib.rs:
 
 ```
