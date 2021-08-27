@@ -38,6 +38,12 @@ use frame_support::sp_std::{
     },
 };
 
+#[cfg(test)]
+mod mock;
+
+#[cfg(test)]
+mod tests;
+
 pub type FileHash = Vec<u8>;
 
 pub struct AccountId([u8; 32]);
