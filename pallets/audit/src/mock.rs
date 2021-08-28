@@ -1,6 +1,5 @@
 use crate as pallet_audit;
 use sp_core::H256;
-use frame_support::parameter_types;
 use sp_runtime::{
 	traits::{BlakeTwo256, IdentityLookup}, testing::Header,
 };
