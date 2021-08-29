@@ -59,9 +59,6 @@ RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/node-template -lruntime=debug -
 
 
 
-
-
-
 # Substrate Node Template
 
 [![Try on playground](https://img.shields.io/badge/Playground-Node_Template-brightgreen?logo=Parity%20Substrate)](https://playground.substrate.dev/?deploy=node-template)
