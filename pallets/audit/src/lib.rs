@@ -135,7 +135,6 @@ decl_error! {
 
 
 decl_module! {
-    // ПОСМОТРЕТЬ СЮДА:
     pub struct Module<T: Config> for enum Call where origin: T::Origin {
         #[weight = 10_000]
 		pub fn sign_latest_version(origin, id: u32) {
@@ -155,7 +154,11 @@ decl_module! {
 		}
 
         #[weight = 10_000]
-        pub fn create_new_file(origin, tag: Vec<u8>, filehash: u64) {
+        pub fn create_new_file(origin, tag: Vec<u8>, filehash: u64) -> DispatchResult {
+            if tag.len() == 0 {
+                return Err(DispatchError::Other("empty file error"))
+            }
+
             let caller = ensure_signed(origin)?;
             
             let empty_vec: Vec<SigStruct<AccountId>> = Vec::new();
@@ -178,6 +181,8 @@ decl_module! {
 
             <FileByID<T>>::insert(new_id, new_file);
             LastID::mutate(|x| *x += 1);
+
+            Ok(())
         }
 
         #[weight = 10_000]
@@ -186,6 +191,19 @@ decl_module! {
             let file = FileByID::<T>::get(id);
             let index = file.versions.iter().position(|v| v.tag == tag).unwrap();
             // TODO: return file.versions[index]
+        }
+
+        #[weight = 10_000]
+        pub fn get_file_by_id(origin, id: u32) -> DispatchResult// -> VersionStruct<<T as frame_system::Config>::AccountId> 
+        {
+            let file = FileByID::<T>::get(id);
+            let owner = file.owner;
+
+            // if owner == 0 {
+            //     return Err(DispatchError::Other("no file"));
+            // }
+            // TODO: return file.versions[index]
+            Ok(())
         }
         
         #[weight = 10_000]
