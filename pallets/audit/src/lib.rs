@@ -178,7 +178,6 @@ decl_module! {
 
             <FileByID<T>>::insert(new_id, new_file);
             LastID::mutate(|x| *x += 1);
-
         }
 
         #[weight = 10_000]
