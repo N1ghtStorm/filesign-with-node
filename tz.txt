@@ -1,0 +1,31 @@
+It's necessary to implement pallet basic structure
+
+files storage
+extrinsics
+file structure:
+
+{
+  id: <ID>,
+  owner: <Address>,
+  versions: [{
+    tag: <String>,
+    hash: <Hash>,
+    signs: [{
+      address: <Address>,
+      signed: <Boolean>,
+      sign_hash: <Hash>
+    }]
+  }],
+  auditors: [{
+    address: <Address>
+  }]
+}
+extrinsics:
+
+create file
+assign auditor to file
+delete auditor for file
+check file signature status (does last version of file have all signatures)
+explore ordered list of tags
+get info by tag
+sign last version of file (with address checking)

@@ -46,12 +46,12 @@ mod tests;
 
 pub type FileHash = Vec<u8>;
 
-pub struct AccountId([u8; 32]);
-impl PartialEq for AccountId {
-    fn eq(&self, other: &Self) -> bool {
-        self.0 == other.0
-    }
-}
+// pub struct AccountId([u8; 32]);
+// impl PartialEq for AccountId {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.0 == other.0
+//     }
+// }
 
 #[derive(Encode, Decode, Clone, Default, Eq, PartialEq, RuntimeDebug)]
 pub struct SigStruct<AccountId> {
@@ -73,7 +73,6 @@ pub struct FileStruct<AccountId> {
     pub versions: Vec<VersionStruct<AccountId>>,
     pub auditors: Vec<AccountId>,
 }
-
 
 
 pub type FileStructOf<T> = FileStruct<
@@ -161,7 +160,8 @@ decl_module! {
 
             let caller = ensure_signed(origin)?;
             
-            let empty_vec: Vec<SigStruct<AccountId>> = Vec::new();
+            let empty_vec: Vec<SigStruct<T>> = Vec::new();
+            //let empty_vec: Vec<SigStruct<AccountId>> = Vec::new();
             let latest_version = VersionStruct {
                 tag,
                 filehash,
@@ -197,7 +197,7 @@ decl_module! {
         pub fn get_file_by_id(origin, id: u32) -> DispatchResult// -> VersionStruct<<T as frame_system::Config>::AccountId> 
         {
             let file = FileByID::<T>::get(id);
-            let owner = file.owner;
+            //let owner = file.owner.0[0];
 
             // if owner == 0 {
             //     return Err(DispatchError::Other("no file"));

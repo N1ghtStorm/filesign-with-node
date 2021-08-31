@@ -13,16 +13,7 @@ fn it_works_for_create_new_file() {
 		let filehash = 666_666_u64;
 
 		assert_ok!(Audit::create_new_file(Origin::signed(1), tag.clone(), filehash), ());
-		assert_ok!(Audit::create_new_file(Origin::signed(1), tag.clone(), 888), ());
-		assert_ok!(Audit::create_new_file(Origin::signed(1), tag.clone(), 999), ());
-		
-		let file_result = Audit::get_file_by_id(Origin::signed(1), 0);
-		let file_result = Audit::get_file_by_id(Origin::signed(1), 1);
-		let file_result = Audit::get_file_by_id(Origin::signed(1), 2);
-		let file_result = Audit::get_file_by_id(Origin::signed(1), 3);
-		let file_result = Audit::get_file_by_id(Origin::signed(1), 5);
-		assert_ok!(file_result, ());
-		//todo!("add storage tests");
+		todo!("add storage check tests");
 	});
 }
 
@@ -33,6 +24,27 @@ fn it_fails_for_create_new_file_incorrect_file_input() {
 		let filehash = 666_666_u64;
 
 		assert_eq!(Audit::create_new_file(Origin::signed(1), tag, filehash), DispatchResult::Err(DispatchError::Other("empty file error")));
-		//todo!("add storage tests");
+		todo!("add storage check tests");
+	});
+}
+
+#[test]
+fn it_works_sign_latest_version() {
+	new_test_ext().execute_with(|| {
+		todo!("add tests");
+	});
+}
+
+#[test]
+fn it_works_delete_auditor() {
+	new_test_ext().execute_with(|| {
+		todo!("add tests");
+	});
+}
+
+#[test]
+fn it_works_assign_auditorr() {
+	new_test_ext().execute_with(|| {
+		todo!("add tests");
 	});
 }
