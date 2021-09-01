@@ -160,7 +160,6 @@ decl_module! {
 
             let caller = ensure_signed(origin)?;
             
-            //let empty_vec: Vec<SigStruct<T>> = Vec::new();
             let empty_vec: Vec<SigStruct<AccountId>> = Vec::new();
             let latest_version = VersionStruct {
                 tag,
@@ -204,7 +203,7 @@ decl_module! {
         }
         
         #[weight = 10_000]
-        pub fn delete_auditor(origin, id: u32, auditor: T::AccountId) {
+        pub fn delete_auditor(origin, id: u32, auditor: T::AccountId)  {
             let caller = ensure_signed(origin)?;
             ensure!(Self::address_is_owner_for_file(id, caller), Error::<T>::AddressNotOwner);
 
@@ -212,9 +211,12 @@ decl_module! {
                 id, |file_by_id| -> DispatchResult {
                     let mut file = file_by_id.clone();
                     let mut current_auditors = file.auditors;
-                    let index = current_auditors.iter().position(|a| a == &auditor).unwrap();
+                    let index = match current_auditors.iter().position(|a| a == &auditor) {
+                        Some(i) => i,
+                        None => return Err(DispatchError::Other("no "))
+                    };
                     current_auditors.remove(index);
-                    let mut updated_auditors = current_auditors;
+                    let updated_auditors = current_auditors;
                     file.auditors = updated_auditors;
                     *file_by_id = file;
                 Ok(())
@@ -234,7 +236,6 @@ decl_module! {
                 Ok(())
                 })?;
         }
-
     }
 }
 

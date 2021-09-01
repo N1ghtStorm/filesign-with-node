@@ -39,6 +39,7 @@ fn it_works_sign_latest_version() {
 		assert_eq!(Audit::create_new_file(Origin::signed(1), tag, filehash), DispatchResult::Err(DispatchError::Other("empty file error")));
 		let account_id = 1;
 		let sign_latest_version_result = Audit::sign_latest_version(Origin::signed(1), 1);
+		todo!("continue test");
 
 	});
 }
@@ -63,17 +64,15 @@ fn it_works_delete_auditor() {
 	new_test_ext().execute_with(|| {
 		let tag = vec![40, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 		let filehash = 666_666_u64;
-
 		let account_id = 1;
+
 		let create_file_result = Audit::create_new_file(Origin::signed(1), tag.clone(), filehash);
 		let assign_auditor_result = Audit::assign_auditor(Origin::signed(1), 1, account_id);
 		let delete_auditor_result = Audit::delete_auditor(Origin::signed(1), 1, account_id);
-		//let delete_auditor_result_no_auditors_left = Audit::delete_auditor(Origin::signed(1), 1, account_id);
 
 		assert_ok!(create_file_result, ());
 		assert_ok!(assign_auditor_result, ());
 		assert_ok!(delete_auditor_result, ());
-		//assert_ne!(delete_auditor_result_no_auditors_left, DispatchResult::Ok(()));
 	});
 }
 
