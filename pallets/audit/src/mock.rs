@@ -53,3 +53,14 @@ impl pallet_audit::Config for Test {
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	system::GenesisConfig::default().build_storage::<Test>().unwrap().into()
 }
+
+// static ROLES: [(u64, u8); 8] = [
+//     (1_u64, MASTER_ROLE_MASK),
+//     (2_u64, CUSTODIAN_ROLE_MASK),
+//     (3_u64, ISSUER_ROLE_MASK),
+//     (4_u64, INVESTOR_ROLE_MASK),
+//     (5_u64, AUDITOR_ROLE_MASK),
+//     (6_u64, INVESTOR_ROLE_MASK),
+//     (7_u64, ISSUER_ROLE_MASK | INVESTOR_ROLE_MASK),
+//     (8_u64, MANAGER_ROLE_MASK),
+// ];
