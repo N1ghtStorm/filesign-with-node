@@ -13,8 +13,6 @@ fn it_works_for_create_new_file() {
 		let filehash = 666_666_u64;
 
 		assert_ok!(Audit::create_new_file(Origin::signed(1), tag.clone(), filehash), ());
-
-		//let a = Audit::get_file_by_id(Origin::signed(1), 1);
 		todo!("add storage check tests");
 	});
 }
@@ -98,6 +96,7 @@ fn it_works_sign_latest_version() {
 		let _ = Audit::create_new_file(Origin::signed(1), tag, filehash);
 		let assign_auditor_result = Audit::assign_auditor(Origin::signed(1), 1, account_id);
 		let sign_latest_version_result = Audit::sign_latest_version(Origin::signed(1), 1);
+		let _ = Audit::sign_latest_version(Origin::signed(1), 1);
 
 		assert_ok!(assign_auditor_result, ());
 		assert_ok!(sign_latest_version_result, ());

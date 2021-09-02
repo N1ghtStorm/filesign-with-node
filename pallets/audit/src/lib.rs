@@ -140,16 +140,20 @@ decl_module! {
             ensure!(Self::address_is_auditor_for_file(id, &caller), Error::<T>::AddressNotAuditor);
             FileByID::<T>::try_mutate(
                 id, |file_by_id| -> DispatchResult {
-                    let file = file_by_id.clone();
-                    let latest_version = file.versions.last().unwrap();
+                    let latest_version = file_by_id.versions.last_mut().unwrap();
 
                     // here check if has already signed
-                    let index = latest_version.signatures.iter().position(|sig| sig.address == caller).unwrap();
-                    let mut updated_latest_version = latest_version.clone();
-                    updated_latest_version.signatures[index].signed = true;
-                    file_by_id.versions.pop();
-                    file_by_id.versions.push(updated_latest_version);
-                Ok(())
+                    match latest_version.signatures.iter().position(|sig| sig.address == caller) {
+                        Some(_) => {
+                            // new logic can be made in future:
+                            Ok(())
+                        },
+                        None => {
+                            //let mut singns = latest_version.signatures;
+                            latest_version.signatures.push(SigStruct{address: caller, signed: true});
+                            Ok(())
+                        }
+                    }
                 })?;
 		}
 
