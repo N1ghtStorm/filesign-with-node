@@ -74,7 +74,6 @@ pub struct FileStruct<AccountId> {
     pub auditors: Vec<AccountId>,
 }
 
-
 pub type FileStructOf<T> = FileStruct<
     <T as frame_system::Config>::AccountId,
 >;
@@ -143,6 +142,8 @@ decl_module! {
                 id, |file_by_id| -> DispatchResult {
                     let file = file_by_id.clone();
                     let latest_version = file.versions.last().unwrap();
+
+                    // here check if has already signed
                     let index = latest_version.signatures.iter().position(|sig| sig.address == caller).unwrap();
                     let mut updated_latest_version = latest_version.clone();
                     updated_latest_version.signatures[index].signed = true;
@@ -160,12 +161,15 @@ decl_module! {
 
             let caller = ensure_signed(origin)?;
             
-            let empty_vec: Vec<SigStruct<AccountId>> = Vec::new();
+            let empty_vec: Vec<SigStruct<<T as frame_system::Config>::AccountId>> = Vec::new();
             let latest_version = VersionStruct {
                 tag,
                 filehash,
                 signatures: empty_vec,
             };
+
+            let mut versions = Vec::with_capacity(1);
+            versions.push(latest_version);
 
             // Update last created file ID
             let last_id = LastID::get();
@@ -174,7 +178,7 @@ decl_module! {
             let new_file = FileStruct {
                 owner: caller,
                 id: last_id,
-                versions: Vec::new(),
+                versions: versions,
                 auditors: Vec::new(),
             };
 
@@ -190,16 +194,6 @@ decl_module! {
             let file = FileByID::<T>::get(id);
             let index = file.versions.iter().position(|v| v.tag == tag).unwrap();
             // TODO: return file.versions[index]
-        }
-
-        // TEMP FUNC:
-        #[weight = 10_000]
-        pub fn get_file_by_id(origin, id: u32) -> DispatchResult// -> VersionStruct<<T as frame_system::Config>::AccountId> 
-        {
-            let file = FileByID::<T>::get(id);
-            let owner = file.owner;
-
-            Ok(())
         }
         
         #[weight = 10_000]
@@ -247,6 +241,10 @@ impl<T: Config> Module<T> {
     /// Checks if the address is an auditor for the given file
     /// </pre>
     pub fn address_is_auditor_for_file(id: u32, address: &T::AccountId) -> bool {
+        let a = FileByID::<T>::get(id);//.auditors;// FOR DEBUG
+        let auditors = a.auditors;
+
+
         FileByID::<T>::get(id).auditors.iter().any(|x| x == address)
     }
 
