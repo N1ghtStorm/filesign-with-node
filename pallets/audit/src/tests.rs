@@ -100,8 +100,19 @@ fn it_works_sign_latest_version() {
 
 		assert_ok!(assign_auditor_result, ());
 		assert_ok!(sign_latest_version_result, ());
+	});
+}
 
-		//todo!("continue test");
+#[test]
+fn it_fail_sign_latest_version_not_an_auditor() {
+	new_test_ext().execute_with(|| {
+		let tag = vec![40, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+		let filehash = 666_666_u64;
+		let account_id = 1;
 
+		let _ = Audit::create_new_file(Origin::signed(1), tag, filehash);
+		let sign_latest_version_result = Audit::sign_latest_version(Origin::signed(1), 1);
+
+		assert_ne!(sign_latest_version_result, DispatchResult::Ok(()));
 	});
 }

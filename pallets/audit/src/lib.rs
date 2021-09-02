@@ -46,12 +46,12 @@ mod tests;
 
 pub type FileHash = Vec<u8>;
 
-pub struct AccountId([u8; 32]);
-impl PartialEq for AccountId {
-    fn eq(&self, other: &Self) -> bool {
-        self.0 == other.0
-    }
-}
+// pub struct AccountId([u8; 32]);
+// impl PartialEq for AccountId {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.0 == other.0
+//     }
+// }
 
 #[derive(Encode, Decode, Clone, Default, Eq, PartialEq, RuntimeDebug)]
 pub struct SigStruct<AccountId> {
@@ -144,16 +144,12 @@ decl_module! {
 
                     // here check if has already signed
                     match latest_version.signatures.iter().position(|sig| sig.address == caller) {
-                        Some(_) => {
-                            // new logic can be made in future:
-                            Ok(())
-                        },
+                        Some(_) => {/*new logic can be made in future here*/},
                         None => {
-                            //let mut singns = latest_version.signatures;
-                            latest_version.signatures.push(SigStruct{address: caller, signed: true});
-                            Ok(())
+                            latest_version.signatures.push(SigStruct{address: caller, signed: true});         
                         }
                     }
+                    Ok(())
                 })?;
 		}
 
@@ -211,13 +207,13 @@ decl_module! {
                     let mut current_auditors = file.auditors;
                     let index = match current_auditors.iter().position(|a| a == &auditor) {
                         Some(i) => i,
-                        None => return Err(DispatchError::Other("no "))
+                        None => return Err(DispatchError::Other("no auditor"))
                     };
                     current_auditors.remove(index);
                     let updated_auditors = current_auditors;
                     file.auditors = updated_auditors;
                     *file_by_id = file;
-                Ok(())
+                    Ok(())
                 })?;
         }
 
@@ -245,10 +241,6 @@ impl<T: Config> Module<T> {
     /// Checks if the address is an auditor for the given file
     /// </pre>
     pub fn address_is_auditor_for_file(id: u32, address: &T::AccountId) -> bool {
-        let a = FileByID::<T>::get(id);//.auditors;// FOR DEBUG
-        let auditors = a.auditors;
-
-
         FileByID::<T>::get(id).auditors.iter().any(|x| x == address)
     }
 
