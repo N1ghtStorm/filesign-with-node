@@ -198,20 +198,15 @@ decl_module! {
         #[weight = 10_000]
         pub fn delete_auditor(origin, id: u32, auditor: T::AccountId)  {
             let caller = ensure_signed(origin)?;
-            ensure!(Self::address_is_owner_for_file(id, caller), Error::<T>::AddressNotOwner);
+            ensure!(Self::address_is_owner_for_file(id, &caller), Error::<T>::AddressNotOwner);
 
             FileByID::<T>::try_mutate(
                 id, |file_by_id| -> DispatchResult {
-                    let mut file = file_by_id.clone();
-                    let mut current_auditors = file.auditors;
-                    let index = match current_auditors.iter().position(|a| a == &auditor) {
+                    let index = match file_by_id.auditors.iter().position(|a| a == &auditor) {
                         Some(i) => i,
                         None => return Err(DispatchError::Other("no auditor"))
                     };
-                    current_auditors.remove(index);
-                    let updated_auditors = current_auditors;
-                    file.auditors = updated_auditors;
-                    *file_by_id = file;
+                    file_by_id.auditors.remove(index);
                     Ok(())
                 })?;
         }
@@ -219,14 +214,14 @@ decl_module! {
         #[weight = 10_000]
         pub fn assign_auditor(origin, id: u32, auditor: T::AccountId) {
             let caller = ensure_signed(origin)?;
-            ensure!(Self::address_is_owner_for_file(id, caller), Error::<T>::AddressNotOwner);
+            ensure!(Self::address_is_owner_for_file(id, &caller), Error::<T>::AddressNotOwner);
 
             FileByID::<T>::try_mutate(
                 id, |file_by_id| -> DispatchResult {
-                    let mut file = file_by_id.clone(); // TODO assert that the auditor is not already an auditor
-                    file.auditors.push(auditor);
-                    *file_by_id = file;
-                Ok(())
+                    if !file_by_id.auditors.iter().any(|x| *x == caller) {
+                        file_by_id.auditors.push(auditor);
+                    }          
+                    Ok(())
                 })?;
         }
     }
@@ -249,8 +244,8 @@ impl<T: Config> Module<T> {
     ///
     /// Checks if the address is the owner for the given file
     /// </pre>
-    pub fn address_is_owner_for_file(id: u32, address: T::AccountId) -> bool {
-        FileByID::<T>::get(id).owner == address
+    pub fn address_is_owner_for_file(id: u32, address: &T::AccountId) -> bool {
+        FileByID::<T>::get(id).owner == *address
     }
 
     pub fn get_file_by_id(id: u32) -> FileStruct<<T as frame_system::Config>::AccountId> {
