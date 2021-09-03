@@ -52,9 +52,14 @@ cargo build --release
 ./target/release/node-template --dev
 ```
 
+Run in release dev mode + logs:
+```
+RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/node-template -lruntime=debug --dev &> ~/filesign_log
+```
+
+
 Go to [extrinsics](https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/extrinsics) for the locally running node 
 
-RUST_LOG=debug RUST_BACKTRACE=1 ./target/release/node-template -lruntime=debug --dev &> ~/filesign_log
 
 
 

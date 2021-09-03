@@ -99,12 +99,19 @@ impl<AccountId> FileStruct<AccountId> {
     }
 
     // Asserts that the latest version of file has no missing signatures from auditors
-    fn check_sig_status(
-        file: FileStruct<AccountId>
-    ) -> bool {
-        let latest_version: &VersionStruct<AccountId> = file.versions.last().unwrap();
-        let iter = latest_version.signatures.iter().filter(|x| x.signed == false);
-        iter.count() == 0
+    fn check_sig_status(&self) -> bool where AccountId: PartialEq {
+        let latest_version: &VersionStruct<AccountId> = self.versions.last().unwrap();   
+
+        // !self.auditors.iter().any(|aud| latest_version.signatures.iter().any(|x| x.address == *aud));
+
+        for aud in &self.auditors {
+            if !latest_version.signatures.iter().any(|x| x.address == *aud){
+                return false;
+            }
+        }
+        true
+        //let iter = latest_version.signatures.iter().filter(|x| x.signed == false);
+        //iter.count() == 0
     }
 }
 
