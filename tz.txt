@@ -22,10 +22,17 @@ file structure:
 }
 extrinsics:
 
+#-> done:
 create file
 assign auditor to file
 delete auditor for file
+sign last version of file (with address checking)
+
+#-> in progress:
+get info by tag
+
+#-> todo:
 check file signature status (does last version of file have all signatures)
 explore ordered list of tags
-get info by tag
-sign last version of file (with address checking)
+
+

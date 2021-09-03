@@ -112,7 +112,6 @@ pub trait Config: frame_system::Config {
     
 }
 
-
 decl_storage! {
     trait Store for Module<T: Config> as Audit {
         /// Storage map for file IDs
@@ -252,5 +251,9 @@ impl<T: Config> Module<T> {
     /// </pre>
     pub fn address_is_owner_for_file(id: u32, address: T::AccountId) -> bool {
         FileByID::<T>::get(id).owner == address
+    }
+
+    pub fn get_file_by_id(id: u32) -> FileStruct<<T as frame_system::Config>::AccountId> {
+        FileByID::<T>::get(id)
     }
 }

@@ -11,9 +11,15 @@ fn it_works_for_create_new_file() {
 	new_test_ext().execute_with(|| {
 		let tag = vec![40, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 		let filehash = 666_666_u64;
+		let owner = 3;
 
-		assert_ok!(Audit::create_new_file(Origin::signed(1), tag.clone(), filehash), ());
-		todo!("add storage check tests");
+		let create_file_result = Audit::create_new_file(Origin::signed(owner), tag.clone(), filehash);
+		let file = Audit::get_file_by_id(1);
+
+		assert_ok!(create_file_result, ());
+		assert_eq!(owner, file.owner);
+		assert_eq!(1, file.versions.len());
+		assert_eq!(0, file.auditors.len());
 	});
 }
 
@@ -22,27 +28,57 @@ fn it_fails_for_create_new_file_incorrect_file_input() {
 	new_test_ext().execute_with(|| {
 		let tag = Vec::new();
 		let filehash = 666_666_u64;
+		let owner = 3;
 
-		assert_ne!(Audit::create_new_file(Origin::signed(1), tag, filehash), DispatchResult::Ok(()));
-		todo!("add storage check tests");
+		let create_file_result = Audit::create_new_file(Origin::signed(owner), tag.clone(), filehash);		
+		let file = Audit::get_file_by_id(1);
+
+		assert_ne!(create_file_result, DispatchResult::Ok(()));
+		assert_eq!(0, file.owner);
 	});
 }
 
+#[test]
+fn it_works_assign_auditor() {
+	new_test_ext().execute_with(|| {
+		let tag = vec![40, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+		let filehash = 666_666_u64;
+		let account_id = 1;
+
+		let create_file_result = Audit::create_new_file(Origin::signed(1), tag, filehash);
+		let assign_auditor_result = Audit::assign_auditor(Origin::signed(1), 1, account_id);
+		let file = Audit::get_file_by_id(1);
+
+		assert_ok!(create_file_result, ());
+		assert_ok!(assign_auditor_result, ());
+		assert_eq!(1, file.auditors.len());
+		assert_eq!(account_id, file.auditors[0]);
+	});
+}
 
 #[test]
 fn it_works_delete_auditor() {
 	new_test_ext().execute_with(|| {
 		let tag = vec![40, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 		let filehash = 666_666_u64;
-		let account_id = 1;
+		let account_id = 2;
 
 		let create_file_result = Audit::create_new_file(Origin::signed(1), tag.clone(), filehash);
 		let assign_auditor_result = Audit::assign_auditor(Origin::signed(1), 1, account_id);
+
+		// Check file state before delete
+		let file_with_auditor = Audit::get_file_by_id(1);
 		let delete_auditor_result = Audit::delete_auditor(Origin::signed(1), 1, account_id);
+
+		// Check file state after delete
+		let file_without_auditor = Audit::get_file_by_id(1);
 
 		assert_ok!(create_file_result, ());
 		assert_ok!(assign_auditor_result, ());
 		assert_ok!(delete_auditor_result, ());
+		assert_eq!(1, file_with_auditor.auditors.len());
+		assert_eq!(account_id, file_with_auditor.auditors[0]);
+		assert_eq!(0, file_without_auditor.auditors.len());
 	});
 }
 
@@ -69,23 +105,6 @@ fn it_fails_delete_auditor_no_auditors() {
 }
 
 
-
-#[test]
-fn it_works_assign_auditor() {
-	new_test_ext().execute_with(|| {
-		let tag = vec![40, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-		let filehash = 666_666_u64;
-		let account_id = 1;
-
-		let create_file_result = Audit::create_new_file(Origin::signed(1), tag, filehash);
-		let assign_auditor_result = Audit::assign_auditor(Origin::signed(1), 1, account_id);
-
-		assert_ok!(create_file_result, ());
-		assert_ok!(assign_auditor_result, ());
-	});
-}
-
-
 #[test]
 fn it_works_sign_latest_version() {
 	new_test_ext().execute_with(|| {
@@ -97,9 +116,11 @@ fn it_works_sign_latest_version() {
 		let assign_auditor_result = Audit::assign_auditor(Origin::signed(1), 1, account_id);
 		let sign_latest_version_result = Audit::sign_latest_version(Origin::signed(1), 1);
 		let _ = Audit::sign_latest_version(Origin::signed(1), 1);
+		let file = Audit::get_file_by_id(1);
 
 		assert_ok!(assign_auditor_result, ());
 		assert_ok!(sign_latest_version_result, ());
+		assert_eq!(1, file.versions.last().unwrap().signatures.len());
 	});
 }
 
@@ -108,7 +129,6 @@ fn it_fail_sign_latest_version_not_an_auditor() {
 	new_test_ext().execute_with(|| {
 		let tag = vec![40, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 		let filehash = 666_666_u64;
-		let account_id = 1;
 
 		let _ = Audit::create_new_file(Origin::signed(1), tag, filehash);
 		let sign_latest_version_result = Audit::sign_latest_version(Origin::signed(1), 1);
