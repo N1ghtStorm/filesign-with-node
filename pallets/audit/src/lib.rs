@@ -46,13 +46,6 @@ mod tests;
 
 pub type FileHash = Vec<u8>;
 
-// pub struct AccountId([u8; 32]);
-// impl PartialEq for AccountId {
-//     fn eq(&self, other: &Self) -> bool {
-//         self.0 == other.0
-//     }
-// }
-
 #[derive(Encode, Decode, Clone, Default, Eq, PartialEq, RuntimeDebug)]
 pub struct SigStruct<AccountId> {
     pub address: AccountId,
@@ -103,15 +96,12 @@ impl<AccountId> FileStruct<AccountId> {
         let latest_version: &VersionStruct<AccountId> = self.versions.last().unwrap();   
 
         // !self.auditors.iter().any(|aud| latest_version.signatures.iter().any(|x| x.address == *aud));
-
         for aud in &self.auditors {
             if !latest_version.signatures.iter().any(|x| x.address == *aud){
                 return false;
             }
         }
         true
-        //let iter = latest_version.signatures.iter().filter(|x| x.signed == false);
-        //iter.count() == 0
     }
 }
 
@@ -124,7 +114,7 @@ decl_storage! {
         /// Storage map for file IDs
         FileByID
             get(fn file_by_id):
-            map hasher(blake2_128_concat) u32 => FileStruct<T::AccountId>;
+            map hasher(blake2_128_concat) u32 => FileStruct<T::AccountId>;   
 
         LastID: u32;
     }
@@ -255,7 +245,13 @@ impl<T: Config> Module<T> {
         FileByID::<T>::get(id).owner == *address
     }
 
-    pub fn get_file_by_id(id: u32) -> FileStruct<<T as frame_system::Config>::AccountId> {
+    /// <pre>
+    /// Method: get_file_by_id(id: u32) -> FileStruct<<T as frame_system::Config>::AccountId>
+    /// Arguments: id: u32 file ID
+    ///
+    /// Gets File by id
+    /// </pre>
+    fn get_file_by_id(id: u32) -> FileStruct<<T as frame_system::Config>::AccountId> {
         FileByID::<T>::get(id)
     }
 }
