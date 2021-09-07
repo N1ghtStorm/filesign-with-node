@@ -38,6 +38,9 @@ use frame_support::sp_std::{
     },
 };
 
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
+
 #[cfg(test)]
 mod mock;
 
@@ -46,12 +49,15 @@ mod tests;
 
 pub type FileHash = Vec<u8>;
 
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Encode, Decode, Clone, Default, Eq, PartialEq, RuntimeDebug)]
 pub struct SigStruct<AccountId> {
     pub address: AccountId,
     pub signed: bool,
 }
 
+
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Encode, Decode, Clone, Default, Eq, PartialEq, RuntimeDebug)]
 pub struct VersionStruct<AccountId> {
     pub tag: Vec<u8>,
@@ -59,6 +65,8 @@ pub struct VersionStruct<AccountId> {
     pub signatures: Vec<SigStruct<AccountId>>,
 }
 
+
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Encode, Decode, Clone, Default, Eq, PartialEq, RuntimeDebug)]
 pub struct FileStruct<AccountId> {
     pub owner: AccountId,
@@ -95,7 +103,7 @@ impl<AccountId> FileStruct<AccountId> {
     fn check_sig_status(&self) -> bool where AccountId: PartialEq {
         let latest_version: &VersionStruct<AccountId> = self.versions.last().unwrap();   
 
-        // !self.auditors.iter().any(|aud| latest_version.signatures.iter().any(|x| x.address == *aud));
+        // !self.auditors.iter().any(|aud| latest_version.signatures.iter().any(|x| x.address == *aud))
         for aud in &self.auditors {
             if !latest_version.signatures.iter().any(|x| x.address == *aud){
                 return false;
@@ -116,6 +124,7 @@ decl_storage! {
             get(fn file_by_id):
             map hasher(blake2_128_concat) u32 => FileStruct<T::AccountId>;   
 
+        /// Last Id of created file
         LastID: u32;
     }
 }
@@ -245,12 +254,7 @@ impl<T: Config> Module<T> {
         FileByID::<T>::get(id).owner == *address
     }
 
-    /// <pre>
-    /// Method: get_file_by_id(id: u32) -> FileStruct<<T as frame_system::Config>::AccountId>
-    /// Arguments: id: u32 file ID
-    ///
-    /// Gets File by id
-    /// </pre>
+    #[cfg(test)]
     fn get_file_by_id(id: u32) -> FileStruct<<T as frame_system::Config>::AccountId> {
         FileByID::<T>::get(id)
     }
