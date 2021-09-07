@@ -18,6 +18,7 @@ fn it_works_for_create_new_file() {
 
 		assert_ok!(create_file_result, ());
 		assert_eq!(owner, file.owner);
+		assert_eq!(1, file.id);
 		assert_eq!(1, file.versions.len());
 		assert_eq!(0, file.auditors.len());
 	});
