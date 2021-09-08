@@ -75,9 +75,9 @@ pub struct FileStruct<AccountId> {
     pub auditors: Vec<AccountId>,
 }
 
-pub type FileStructOf<T> = FileStruct<
-    <T as frame_system::Config>::AccountId,
->;
+// pub type FileStructOf<T> = FileStruct<
+//     <T as frame_system::Config>::AccountId,
+// >;
 
 impl<AccountId> FileStruct<AccountId> {
     // Assigns a new auditor to a file

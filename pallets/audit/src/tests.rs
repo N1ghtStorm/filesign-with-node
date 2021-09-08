@@ -13,7 +13,7 @@ fn it_works_for_create_new_file() {
 		let filehash = 666_666_u64;
 		let owner = 3;
 
-		let create_file_result = Audit::create_new_file(Origin::signed(owner), tag.clone(), filehash);
+		let create_file_result = Audit::create_new_file(Origin::signed(owner), tag, filehash);
 		let file = Audit::get_file_by_id(1);
 
 		assert_ok!(create_file_result, ());
@@ -31,7 +31,7 @@ fn it_fails_for_create_new_file_incorrect_file_input() {
 		let filehash = 666_666_u64;
 		let owner = 3;
 
-		let create_file_result = Audit::create_new_file(Origin::signed(owner), tag.clone(), filehash);		
+		let create_file_result = Audit::create_new_file(Origin::signed(owner), tag, filehash);		
 		let file = Audit::get_file_by_id(1);
 
 		assert_ne!(create_file_result, DispatchResult::Ok(()));
@@ -64,7 +64,7 @@ fn it_works_delete_auditor() {
 		let filehash = 666_666_u64;
 		let account_id = 2;
 
-		let create_file_result = Audit::create_new_file(Origin::signed(1), tag.clone(), filehash);
+		let create_file_result = Audit::create_new_file(Origin::signed(1), tag, filehash);
 		let assign_auditor_result = Audit::assign_auditor(Origin::signed(1), 1, account_id);
 
 		// Check file state before delete
@@ -90,7 +90,7 @@ fn it_fails_delete_auditor_no_auditors() {
 		let filehash = 666_666_u64;
 
 		let account_id = 1;
-		let _ = Audit::create_new_file(Origin::signed(1), tag.clone(), filehash);
+		let _ = Audit::create_new_file(Origin::signed(1), tag, filehash);
 
 		// First - try to delete unexisting auditor 
 		let delete_auditor_result_no_auditors = Audit::delete_auditor(Origin::signed(1), 1, account_id);
