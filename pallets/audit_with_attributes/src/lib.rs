@@ -46,15 +46,10 @@ use serde::{Deserialize, Serialize};
 #[cfg(test)]
 mod mock;
 
-#[cfg(test)]    
+#[cfg(test)]
 mod tests;
 
-construct_fixed_hash! {
-    /// 256 bit hash type for signing files
-    #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
-    #[derive(Encode, Decode)]
-    pub struct H256(32);
-}
+pub type FileHash = Vec<u8>;
 
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Encode, Decode, Clone, Default, Eq, PartialEq, RuntimeDebug)]
@@ -68,7 +63,7 @@ pub struct SigStruct<AccountId> {
 #[derive(Encode, Decode, Clone, Default, Eq, PartialEq, RuntimeDebug)]
 pub struct VersionStruct<AccountId> {
     pub tag: Vec<u8>,
-    pub filehash: H256,
+    pub filehash: u64,
     pub signatures: Vec<SigStruct<AccountId>>,
 }
 
@@ -82,43 +77,63 @@ pub struct FileStruct<AccountId> {
     pub auditors: Vec<AccountId>,
 }
 
-impl<AccountId> FileStruct<AccountId> {
-    // Assigns a new auditor to a file
-    fn assign_auditor_to_file (
-        mut file: FileStruct<AccountId>, 
-        new_auditor: AccountId
-    ) -> FileStruct<AccountId> {
-        file.auditors.push(new_auditor);
-        file
-    }
+// pub type FileStructOf<T> = FileStruct<
+//     <T as frame_system::Config>::AccountId,
+// >;
 
-    // Removes auditor from file
-    fn delete_auditor_from_file (
-        mut file: FileStruct<AccountId>, 
-        auditor: AccountId
-    ) -> FileStruct<AccountId> where AccountId: PartialEq {
-        let index = file.auditors.iter().position(|x| x == &auditor).unwrap();
-        file.auditors.remove(index);
-        file
-    }
+// impl<AccountId> FileStruct<AccountId> {
+//     // Assigns a new auditor to a file
+//     fn assign_auditor_to_file (
+//         mut file: FileStruct<AccountId>, 
+//         new_auditor: AccountId
+//     ) -> FileStruct<AccountId> {
+//         file.auditors.push(new_auditor);
+//         file
+//     }
 
-    // Asserts that the latest version of file has no missing signatures from auditors
-    fn check_sig_status(&self) -> bool where AccountId: PartialEq {
-        let latest_version: &VersionStruct<AccountId> = self.versions.last().unwrap();   
+//     // Removes auditor from file
+//     fn delete_auditor_from_file (
+//         mut file: FileStruct<AccountId>, 
+//         auditor: AccountId
+//     ) -> FileStruct<AccountId> where AccountId: PartialEq {
+//         let index = file.auditors.iter().position(|x| x == &auditor).unwrap();
+//         file.auditors.remove(index);
+//         file
+//     }
 
-        // !self.auditors.iter().any(|aud| latest_version.signatures.iter().any(|x| x.address == *aud))
-        for aud in &self.auditors {
-            if !latest_version.signatures.iter().any(|x| x.address == *aud){
-                return false;
-            }
-        }
-        true
-    }
-}
+//     // Asserts that the latest version of file has no missing signatures from auditors
+//     fn check_sig_status(&self) -> bool where AccountId: PartialEq {
+//         let latest_version: &VersionStruct<AccountId> = self.versions.last().unwrap();   
 
-pub trait Config: frame_system::Config {
+//         // !self.auditors.iter().any(|aud| latest_version.signatures.iter().any(|x| x.address == *aud))
+//         for aud in &self.auditors {
+//             if !latest_version.signatures.iter().any(|x| x.address == *aud){
+//                 return false;
+//             }
+//         }
+//         true
+//     }
+// }    
+
+
+
+#[frame_support::pallet]
+pub mod pallet {
+
+    #[pallet::config]
+    pub trait Config: frame_system::Config { }
+
+    #[pallet::pallet]
+	#[pallet::generate_store(pub(super) trait Store)]
+	pub struct Pallet<T>(_);
     
+
+    #[pallet::storage]
+	#[pallet::getter(fn file_by_id)]
+    pub type FileByID = StorageValue<>;
+
 }
+
 
 decl_storage! {
     trait Store for Module<T: Config> as Audit {
@@ -162,7 +177,7 @@ decl_module! {
 		}
 
         #[weight = 10_000]
-        pub fn create_new_file(origin, tag: Vec<u8>, filehash: H256) -> DispatchResult {
+        pub fn create_new_file(origin, tag: Vec<u8>, filehash: u64) -> DispatchResult {
             if tag.len() == 0 {
                 return Err(DispatchError::Other("empty file error"))
             }

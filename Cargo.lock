@@ -3856,6 +3856,7 @@ dependencies = [
 name = "pallet-audit"
 version = "3.0.0"
 dependencies = [
+ "fixed-hash",
  "frame-benchmarking",
  "frame-support",
  "frame-system",
